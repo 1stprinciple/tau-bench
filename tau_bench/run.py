@@ -1,20 +1,21 @@
 # Copyright Sierra
 
-import os
 import json
+import multiprocessing
+import os
 import random
 import traceback
-from math import comb
-import multiprocessing
-from typing import List, Dict, Any
-from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from math import comb
+from typing import Any, Dict, List
 
-from tau_bench.envs import get_env
-from tau_bench.agents.base import Agent
-from tau_bench.types import EnvRunResult, RunConfig
 from litellm import provider_list
+
+from tau_bench.agents.base import Agent
+from tau_bench.envs import get_env
 from tau_bench.envs.user import UserStrategy
+from tau_bench.types import EnvRunResult, RunConfig
 
 
 def run(config: RunConfig) -> List[EnvRunResult]:
@@ -27,7 +28,7 @@ def run(config: RunConfig) -> List[EnvRunResult]:
 
     random.seed(config.seed)
     time_str = datetime.now().strftime("%m%d%H%M%S")
-    ckpt_path = f"{config.log_dir}/{config.agent_strategy}-{config.model.split('/')[-1]}-{config.temperature}_range_{config.start_index}-{config.end_index}_user-{config.user_model}-{config.user_strategy}_{time_str}.json"
+    ckpt_path = f"{config.log_dir}/{config.agent_strategy}-{config.model.replace("/", "-")}-{config.temperature}_range_{config.start_index}-{config.end_index}_user-{config.user_model.replace("/", "-")}-{config.user_strategy}_{time_str}.json"
     if not os.path.exists(config.log_dir):
         os.makedirs(config.log_dir)
 
