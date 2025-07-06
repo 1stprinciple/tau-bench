@@ -41,6 +41,7 @@ class ToolCallingAgent(Agent):
             res = completion(
                 messages=messages,
                 model=self.model,
+                custom_llm_provider=self.provider,
                 base_url="http://localhost:11434/v1",
                 tools=self.tools_info,
                 temperature=self.temperature,
