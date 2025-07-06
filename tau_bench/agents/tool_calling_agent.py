@@ -45,6 +45,7 @@ class ToolCallingAgent(Agent):
                 base_url="http://localhost:11434/v1",
                 tools=self.tools_info,
                 temperature=self.temperature,
+                num_retries=3,
             )
             next_message = res.choices[0].message.model_dump()
             if "response_cost" in res._hidden_params and res._hidden_params["response_cost"] is not None:

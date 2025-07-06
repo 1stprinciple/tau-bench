@@ -2,9 +2,9 @@
 
 import abc
 import enum
-from litellm import completion
+from typing import Any, Dict, List, Optional, Union
 
-from typing import Optional, List, Dict, Any, Union
+from litellm import completion
 
 
 class BaseUserSimulationEnv(abc.ABC):
@@ -45,7 +45,7 @@ class LLMUserSimulationEnv(BaseUserSimulationEnv):
 
     def generate_next_message(self, messages: List[Dict[str, Any]]) -> str:
         res = completion(
-            model=self.model, custom_llm_provider=self.provider, messages=messages
+            model=self.model, custom_llm_provider=self.provider, messages=messages, num_retries=3,
         )
         message = res.choices[0].message
         self.messages.append(message.model_dump())
@@ -116,7 +116,7 @@ User Response:
 
     def generate_next_message(self, messages: List[Dict[str, Any]]) -> str:
         res = completion(
-            model=self.model, custom_llm_provider=self.provider, messages=messages
+            model=self.model, custom_llm_provider=self.provider, messages=messages, num_retries=3,
         )
         message = res.choices[0].message
         self.messages.append(message.model_dump())
@@ -165,7 +165,7 @@ class VerifyUserSimulationEnv(LLMUserSimulationEnv):
         cur_message = None
         while attempts < self.max_attempts:
             res = completion(
-                model=self.model, custom_llm_provider=self.provider, messages=messages
+                model=self.model, custom_llm_provider=self.provider, messages=messages, num_retries=3,
             )
             cur_message = res.choices[0].message
             self.total_cost = res._hidden_params["response_cost"]
@@ -214,7 +214,7 @@ def verify(
     )
     prompt = f"""You are a supervisor of the Agent in the conversation. You are given a Transcript of a conversation between a Customer and an Agent. The Customer has generated a Response, and you need to verify if it is satisfactory (true) or not (false).
 Your answer will be parsed, so do not include any other text than the classification (true or false).
-    
+
 # Transcript:
 {transcript}
 
@@ -227,7 +227,7 @@ Classification:"""
     res = completion(
         model=model,
         custom_llm_provider=provider,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[{"role": "user", "content": prompt}], num_retries=3,
     )
     return "true" in res.choices[0].message.content.lower()
 
@@ -244,7 +244,7 @@ def reflect(
     prompt = f"""You are a supervisor of the Agent in the conversation. You are given a Transcript of a conversation between a (simulated) Customer and an Agent. The Customer generated a Response that was marked as unsatisfactory by you.
 You need to generate a Reflection on what went wrong in the conversation, and propose a new Response that should fix the issues.
 Your answer will be parsed, so do not include any other text than the classification (true or false).
-    
+
 # Transcript:
 {transcript}
 
@@ -261,7 +261,7 @@ Response:
     res = completion(
         model=model,
         custom_llm_provider=provider,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[{"role": "user", "content": prompt}], num_retries=3,
     )
     _, response = res.choices[0].message.content.split("Response:")
     return response.strip()
