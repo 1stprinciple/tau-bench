@@ -44,6 +44,7 @@ class ToolCallingAgent(Agent):
                 custom_llm_provider=self.provider,
                 base_url="http://localhost:11434/v1",
                 tools=self.tools_info,
+                reasoning_effort="none",
                 temperature=self.temperature,
                 num_retries=3,
             )
