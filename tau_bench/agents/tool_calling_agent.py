@@ -45,6 +45,7 @@ class ToolCallingAgent(Agent):
                 base_url="http://localhost:11434/v1",
                 tools=self.tools_info,
                 reasoning_effort="low",
+                allowed_openai_params=['reasoning_effort']
                 temperature=self.temperature,
                 num_retries=3,
             )
